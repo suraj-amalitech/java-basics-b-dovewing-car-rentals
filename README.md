@@ -70,7 +70,7 @@ Completed returns:
 Financial summary:
   Revenue from completed rentals : GHS 1200.0
   Deposits held (active rentals) : GHS 500.0
-  Total                          : GHS 1700.0
+  Total cash held                : GHS 1700.0
 ```
 
 All legitimate transactions produce identical output. The double-rental is
