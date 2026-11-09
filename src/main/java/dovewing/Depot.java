@@ -52,7 +52,7 @@ public class Depot {
      * @param days    number of rental days
      */
     public void rent(Renter renter, Vehicle vehicle, int days) {
-        //  The key guard: refuse if already out 
+        // ── The key guard: refuse if already out ─────────────────────────────
         if (!vehicle.isAvailable()) {
             System.out.println("REFUSED: " + vehicle.getModel()
                 + " (" + vehicle.getReg() + ") is already rented - "
@@ -117,13 +117,13 @@ public class Depot {
         System.out.println();
         System.out.println("=== " + name + " - end of day ===");
 
-        //  Fleet status 
+        // ── Fleet status 
         System.out.println("Fleet status:");
         for (Vehicle v : vehicles) {
             System.out.println("  " + v);
         }
 
-        //  Active rentals
+        // ── Active rentals 
         System.out.println("Active rentals:");
         boolean anyActive = false;
         for (Rental r : rentals) {
@@ -138,7 +138,7 @@ public class Depot {
             System.out.println("  (none)");
         }
 
-        //  Completed returns today 
+        // ── Completed returns today
         System.out.println("Completed returns:");
         boolean anyReturned = false;
         for (Rental r : rentals) {
@@ -153,7 +153,7 @@ public class Depot {
             System.out.println("  (none)");
         }
 
-        //  Financial summary 
+        // ── Financial summary
         double revenueCollected  = 0;   // from rentals that have been returned
         double depositsHeld      = 0;   // from rentals still active
 
@@ -168,7 +168,7 @@ public class Depot {
         System.out.println("Financial summary:");
         System.out.println("  Revenue from completed rentals : GHS " + revenueCollected);
         System.out.println("  Deposits held (active rentals) : GHS " + depositsHeld);
-        System.out.println("  Total                          : GHS " + (revenueCollected + depositsHeld));
+        System.out.println("  Total cash held                : GHS " + (revenueCollected + depositsHeld));
     }
 
     // Accessors (for testing / future use)

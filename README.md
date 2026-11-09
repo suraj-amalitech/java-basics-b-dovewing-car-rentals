@@ -1,23 +1,33 @@
 # Dovewing Car Rentals — Fleet and Rental Tracker
 
-## Running the rebuilt program
+## Running the tests
 
-**With Maven (compile only — no exec plugin configured):**
+JDK 21 and Maven 3.9+ required. This is the canonical command — it compiles
+everything, runs all 10 JUnit 5 tests, and confirms the invariant is enforced:
+
 ```bash
-mvn compile
+mvn clean test
 ```
 
-**Directly with the JDK (JDK 21 required):**
+Expected result: `Tests run: 10, Failures: 0, Errors: 0`
+
+## Running the rebuilt program
+
+**On Linux / macOS:**
 ```bash
-javac -d target/classes $(find src/main/java/dovewing -name "*.java")
+mvn clean compile
 java -cp target/classes dovewing.RentalTracker
 ```
 
 **On Windows PowerShell:**
 ```powershell
-javac -d target/classes (Get-ChildItem -Recurse src/main/java/dovewing -Filter "*.java" | Select-Object -ExpandProperty FullName)
+mvn clean compile
 java -cp target/classes dovewing.RentalTracker
 ```
+
+> Note: there is no exec plugin configured in `pom.xml`; use the `java` command
+> above to run the main class after compiling. `mvn clean test` is the
+> recommended entry point for reviewers.
 
 ---
 
@@ -188,12 +198,11 @@ private `boolean rented` and exposes only `isAvailable()`, `rent()`, and
 methods. `Vehicle.rent()` throws `IllegalStateException` if the vehicle is
 already rented — so even if `Depot` forgot to check, the object refuses.
 
-**Why this approach over a status enum on Vehicle:** a boolean is the exact
-amount of state needed. "Is it available?" is a yes/no question. An enum would
-add the same expressiveness but invite future misuse (someone could add
-`MAINTENANCE`, changing the model without changing the enforcement). The
-`getStatusLabel()` method returns the display string the report needs without
-exposing the field.
+**Why a boolean over a status enum on Vehicle:** a boolean is the exact amount
+of state needed — availability is a yes/no question, and limiting it to that
+prevents future developers from adding states like `MAINTENANCE` that would
+silently bypass the enforcement logic. The `getStatusLabel()` method returns
+the display string reports need without exposing the field.
 
 ### 2. Polymorphic vehicle classes instead of a branching switch
 
@@ -229,6 +238,11 @@ see exactly what happened and why.
 
 ## One improvement beyond the brief: end-of-day financial summary
 
+> This section is the deliberate improvement beyond the brief. The brief
+> authorises one behaviour change (enforcing the availability invariant); this
+> adds one feature the business genuinely needs. All legitimate transaction
+> output is otherwise identical to the original.
+
 The original report showed fleet status and a list of active rentals — nothing
 else. At the end of a working day the owner had no way to see what the tool
 had actually earned, what deposits were being held, or whether the day balanced,
@@ -242,8 +256,9 @@ hands.
 
 **Financial summary** — three lines:
 - Revenue from completed rentals (cost collected on returned vehicles)
-- Deposits held on active rentals (money held, not yet earned)
-- Total cash position for the day
+- Deposits held on active rentals (money held pending return, not yet earned)
+- Total cash held by the depot (revenue collected + deposits held — these are
+  kept separate so the owner knows what is earned vs what must be returned)
 
 ```
 Completed returns:
@@ -251,7 +266,7 @@ Completed returns:
 Financial summary:
   Revenue from completed rentals : GHS 1200.0
   Deposits held (active rentals) : GHS 500.0
-  Total                          : GHS 1700.0
+  Total cash held                : GHS 1700.0
 ```
 
 **Why this matters for the business:** the paper backup exists because the
@@ -260,10 +275,10 @@ at the end of the day. A tool that tells you only which cars are out — but not
 what you earned today — is incomplete as a business tool. This section gives
 the owner what they need to close out the day without a second system.
 
-**Why it is safe to add:** because `Rental` already stores `cost` and
-`deposit` as final fields set at creation time. The summary is a pure read over
-existing data — no new state, no new mutation paths, nothing that could
-introduce the kind of inconsistency the rebuild was designed to eliminate.
+**Why it is safe to add:** `Rental` already stores `cost` and `deposit` as
+final fields set at creation time. The summary is a pure read over existing
+data — no new state, no new mutation paths, nothing that could introduce the
+kind of inconsistency the rebuild was designed to eliminate.
 
 ---
 
