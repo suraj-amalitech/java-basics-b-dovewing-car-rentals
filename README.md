@@ -284,5 +284,5 @@ kind of inconsistency the rebuild was designed to eliminate.
 
 ## Diagnosis
 
-See `DIAGNOSIS.md` for the full written diagnosis committed before any code
-changes, including the design sketch (`design-sketch.svg`).
+See [DIAGNOSIS.md](DIAGNOSIS.md) for the full written diagnosis committed before any code
+changes, including the design sketch ([design-sketch.svg](design-sketch.svg)).
